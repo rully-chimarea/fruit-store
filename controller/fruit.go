@@ -20,6 +20,38 @@ func GetFruits(c echo.Context) error {
 	return c.JSON(http.StatusOK, fruit)
 }
 
+// AddFruit : Create Fruit
+func AddFruit(c echo.Context) error {
+	type RequestBody struct {
+		// Id        uint    `json:"id" validate:"required"`
+		FruitName string  `json:"fruit-name" validate:"required"`
+		FruitType string  `json:"fruit-type" validate:"required"`
+		Price     float64 `json:"price" validate:"required"`
+		Quantity  uint    `json:"quantity"`
+	}
+
+	var body RequestBody
+
+	if err := c.Bind(&body); err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+	if err := c.Validate(&body); err != nil {
+		return err
+	}
+
+	db := db.GetDBInstance()
+	fruit := model.Fruits{
+		// Id:        body.Id,
+		FruitName: body.FruitName,
+		FruitType: body.FruitType,
+		Price:     body.Price,
+		Quantity:  body.Quantity,
+	}
+	db.Create(&fruit)
+
+	return c.JSON(http.StatusCreated, fruit)
+}
+
 func GetRepoFruits() ([]model.Fruits, error) {
 	db := db.GetDBInstance()
 	fruits := []model.Fruits{}
